@@ -49,8 +49,12 @@ const ConsultarVoucher = () => {
 
       const data: Voucher = await res.json();
       setVoucher(data);
-    } catch (err: any) {
-      setError(err.message || "Error al buscar voucher");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error al buscar voucher");
+      }
       setVoucher(null);
     } finally {
       setLoading(false);

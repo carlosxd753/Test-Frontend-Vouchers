@@ -1,16 +1,8 @@
 // import { Stomp } from "@stomp/stompjs";
 // import SockJS from "sockjs-client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
-
-interface Voucher {
-  id: string;
-  numeroOperacion: string;
-  entidad: string;
-  clienteDniRuc: string;
-  fechaHora: string;
-}
 
 const RegistrarVoucher = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
@@ -35,16 +27,8 @@ const RegistrarVoucher = () => {
     fecha: fechaInicial, // yyyy-MM-dd
     hora: horaInicial, // HH:mm
   });
-  const [vouchers, setVouchers] = useState([]);
 
   // Cargar datos iniciales
-  useEffect(() => {
-    fetch(`${apiUrl}/api/vouchers`)
-      .then((res) => res.json())
-      .then((data) => {
-        setVouchers(ordenarVouchers(data));
-      });
-  }, []);
 
   // Conectar WebSocket
   // useEffect(() => {
@@ -61,13 +45,6 @@ const RegistrarVoucher = () => {
   //   return () => client.disconnect();
   // }, []);
 
-  const ordenarVouchers = (list: Voucher[]): Voucher[] => {
-    return list.sort(
-      (a, b) =>
-        new Date(b.fechaHora).getTime() - new Date(a.fechaHora).getTime()
-    );
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -81,7 +58,7 @@ const RegistrarVoucher = () => {
     setForm({ ...form, [name]: numericValue });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (isSubmitting) return;
@@ -140,22 +117,6 @@ const RegistrarVoucher = () => {
       setIsSubmitting(false); // re-habilitamos el formulario
     }
   };
-
-  // Agrupar vouchers por fecha (solo día, no hora)
-  const groupByDate = (list: Voucher[]) => {
-    return list.reduce((acc, voucher) => {
-      const fecha = new Date(voucher.fechaHora).toLocaleDateString("es-PE", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-      if (!acc[fecha]) acc[fecha] = [];
-      acc[fecha].push(voucher);
-      return acc;
-    }, {});
-  };
-
-  const groupedVouchers = groupByDate(vouchers);
 
   return (
     <section>
